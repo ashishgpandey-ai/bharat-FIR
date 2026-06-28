@@ -491,17 +491,28 @@ class PermanentDB:
         return self.data['firs'][-limit:]
     
     def get_stats(self):
-        """Get statistics"""
-        total = len(self.data['firs'])
-        paid = len([f for f in self.data['firs'] if f.get('payment_status')])
-        pending = len([f for f in self.data['firs'] if f.get('status') == 'submitted'])
+    """Get statistics"""
+    try:
+        total = len(self.data.get('firs', []))
+        paid = len([f for f in self.data.get('firs', []) if f.get('payment_status')])
+        pending = len([f for f in self.data.get('firs', []) if f.get('status') == 'submitted'])
         
+        stats = self.data.get('stats', {})
         return {
             'total': total,
             'paid': paid,
             'pending': pending,
-            'total_amount': self.data['stats'].get('total_amount', 0),
-            'total_payments': self.data['stats'].get('total_payments', 0)
+            'total_amount': stats.get('total_amount', 0),
+            'total_payments': stats.get('total_payments', 0)
+        }
+    except Exception as e:
+        logger.error(f"Error getting stats: {e}")
+        return {
+            'total': 0,
+            'paid': 0,
+            'pending': 0,
+            'total_amount': 0,
+            'total_payments': 0
         }
     
     def search_firs(self, query):
@@ -1634,11 +1645,17 @@ flask_app = Flask(__name__)
 @flask_app.route('/')
 def health_check():
     """Health check endpoint for Render"""
+    try:
+        stats = db.get_stats()
+        total_firs = stats.get('total', 0) if stats else 0
+    except:
+        total_firs = 0
+    
     return jsonify({
         'status': 'healthy',
         'bot': 'running',
         'time': datetime.now().isoformat(),
-        'total_firs': db.get_stats()['total']
+        'total_firs': total_firs
     }), 200
 
 @flask_app.route('/webhook', methods=['POST', 'GET'])
