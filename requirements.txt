@@ -8,3 +8,4 @@ pydub==0.25.1
 SpeechRecognition==3.10.4 
 requests==2.31.0 
 aiofiles==23.2.1 
+Flask==2.3.3
