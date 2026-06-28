@@ -1,10 +1,10 @@
-python-telegram-bot==20.6  
-python-dotenv==1.0.0  
-qrcode==7.4.2  
-Pillow==10.1.0  
-google-generativeai==0.3.2  
-reportlab==4.2.2  
-pydub==0.25.1  
-SpeechRecognition==3.10.4  
-requests==2.31.0  
-aiofiles==23.2.1  
+echo python-telegram-bot==20.6 > requirements.txt
+echo python-dotenv==1.0.0 >> requirements.txt
+echo qrcode==7.4.2 >> requirements.txt
+echo Pillow==9.5.0 >> requirements.txt
+echo google-generativeai==0.3.2 >> requirements.txt
+echo reportlab==4.2.2 >> requirements.txt
+echo pydub==0.25.1 >> requirements.txt
+echo SpeechRecognition==3.10.4 >> requirements.txt
+echo requests==2.31.0 >> requirements.txt
+echo aiofiles==23.2.1 >> requirements.txt
