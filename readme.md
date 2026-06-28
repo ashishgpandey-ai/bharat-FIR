@@ -30,7 +30,7 @@ This bot is deployed on Railway.app for 24/7 availability.
 - ReportLab PDF Generator
 
 ### Author:
-Ashish Gaurav Pandey
+Advocate High Court
 
 ### License:
 MIT
