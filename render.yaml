@@ -12,3 +12,5 @@ services:
         sync: false
       - key: ADMIN_USER_ID
         sync: false
+    healthCheckPath: /
+    numReplicas: 1
