@@ -1,0 +1,47 @@
+# Create .gitignore
+echo "# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Database files
+*.db
+*.sqlite3
+fir_data.json
+fir_data.json.backup
+
+# QR codes and temp files
+payment_qr_*.png
+voice_*.ogg
+voice_*.wav
+FIR_*.pdf
+FIR_*.txt
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+" > .gitignore".env" 
+".env.*" 
+"*.env" 
+".env" 
+".env.*" 
+"*.env" 
+".env" 
+".env.*" 
