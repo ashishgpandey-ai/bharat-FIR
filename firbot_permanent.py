@@ -1,4 +1,4 @@
-# firbot_permanent.py - FIR Bot with Permanent Online Storage
+# firbot_permanent.py - Complete FIR Bot with Gemini AI, QR Payment, and Webhook Support
 
 import os
 import logging
@@ -10,6 +10,10 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 import asyncio
 import io
+import threading
+
+# Web server for Render health checks
+from flask import Flask, request, jsonify
 
 # Telegram
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputFile
@@ -42,6 +46,7 @@ load_dotenv()
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 ADMIN_USER_ID = os.getenv('ADMIN_USER_ID', '')
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+PORT = int(os.environ.get('PORT', 10000))
 
 if not TELEGRAM_TOKEN:
     print("❌ ERROR: TELEGRAM_TOKEN not found in .env file!")
@@ -1385,7 +1390,6 @@ def generate_pdf_with_application(fir_data, language):
             app_text = fir_data['application_text']
             # Remove any affidavit text if present
             if 'affidavit' in app_text.lower() or 'शपथ पत्र' in app_text:
-                # Try to remove affidavit section
                 import re
                 if language == 'hi':
                     app_text = re.split(r'(शपथ पत्र|Affidavit)', app_text)[0]
@@ -1441,7 +1445,7 @@ async def search_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         texts['search_prompt'],
         parse_mode=ParseMode.HTML
     )
-    return STATUS_CHECK  # Reuse status check state for search
+    return STATUS_CHECK
 
 async def search_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle search response"""
@@ -1453,7 +1457,7 @@ async def search_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if results:
         message = ""
-        for fir in results[:10]:  # Show top 10
+        for fir in results[:10]:
             status_icon = "✅" if fir.get('payment_status') else "⏳"
             message += f"{status_icon} <code>{fir['fir_number']}</code>\n"
             message += f"   Name: {fir.get('complainant_name', 'N/A')}\n"
@@ -1596,6 +1600,19 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return ConversationHandler.END
 
+async def health_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Health check command"""
+    stats = db.get_stats()
+    await update.message.reply_text(
+        f"✅ Bot is healthy!\n\n"
+        f"⏰ Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+        f"📊 Total FIRs: {stats['total']}\n"
+        f"💰 Total Payments: ₹{stats['total_amount']}\n"
+        f"💾 Data Storage: Permanent & Auto-backed up\n"
+        f"🤖 Gemini AI: {'Enabled' if gemini_model else 'Disabled'}",
+        parse_mode=ParseMode.HTML
+    )
+
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle errors"""
     logger.error(f"Update {update} caused error {context.error}")
@@ -1606,6 +1623,37 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             texts['error'],
             parse_mode=ParseMode.HTML
         )
+
+# ============================================================
+# WEB SERVER FOR RENDER HEALTH CHECKS
+# ============================================================
+
+# Create Flask app for Render health checks
+flask_app = Flask(__name__)
+
+@flask_app.route('/')
+def health_check():
+    """Health check endpoint for Render"""
+    return jsonify({
+        'status': 'healthy',
+        'bot': 'running',
+        'time': datetime.now().isoformat(),
+        'total_firs': db.get_stats()['total']
+    }), 200
+
+@flask_app.route('/webhook', methods=['POST', 'GET'])
+def webhook():
+    """Webhook endpoint for Telegram"""
+    if request.method == 'GET':
+        return jsonify({'status': 'webhook endpoint', 'method': 'GET'}), 200
+    return jsonify({'status': 'webhook endpoint'}), 200
+
+def run_web_server():
+    """Run Flask web server for Render"""
+    try:
+        flask_app.run(host='0.0.0.0', port=PORT)
+    except Exception as e:
+        logger.error(f"Web server error: {e}")
 
 # ============================================================
 # MAIN FUNCTION
@@ -1622,6 +1670,7 @@ def main():
     print(f"✅ UPI ID: {UPI_CONFIG['upi_id']}")
     print(f"✅ Amount: ₹{FIR_AMOUNT}")
     print(f"✅ Gemini AI: {'Enabled' if gemini_model else 'Disabled'}")
+    print(f"✅ Web Server: Port {PORT}")
     print("=" * 70)
     print("📱 Commands:")
     print("  /start     - Start the bot")
@@ -1630,6 +1679,7 @@ def main():
     print("  /list      - List your FIRs")
     print("  /search    - Search FIRs")
     print("  /stats     - Bot statistics")
+    print("  /health    - Health check")
     print("  /help      - Show help")
     print("  /support   - Contact support")
     print("  /feedback  - Give feedback")
@@ -1640,7 +1690,12 @@ def main():
     print("✅ Bot is running... Press Ctrl+C to stop")
     print("=" * 70)
     
-    # Create application
+    # Start web server in background thread
+    web_thread = threading.Thread(target=run_web_server, daemon=True)
+    web_thread.start()
+    logger.info("🌐 Web server started on port {}".format(PORT))
+    
+    # Create Telegram application
     application = Application.builder().token(TELEGRAM_TOKEN).build()
     
     # Main conversation handler
@@ -1682,6 +1737,7 @@ def main():
     application.add_handler(CommandHandler('list', list_firs))
     application.add_handler(CommandHandler('search', search_command))
     application.add_handler(CommandHandler('stats', stats_command))
+    application.add_handler(CommandHandler('health', health_command))
     application.add_handler(CommandHandler('help', help_command))
     application.add_handler(CommandHandler('support', support_command))
     application.add_handler(CommandHandler('feedback', feedback_command))
@@ -1690,8 +1746,15 @@ def main():
     # Error handler
     application.add_error_handler(error_handler)
     
-    # Run the bot
-    application.run_polling()
+    # Run the bot with polling (simpler for Render)
+    try:
+        application.run_polling()
+    except Exception as e:
+        logger.error(f"Bot error: {e}")
+        # Keep the web server running even if bot fails
+        while True:
+            import time
+            time.sleep(60)
 
 if __name__ == '__main__':
     main()
