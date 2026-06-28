@@ -1,0 +1,60 @@
+{
+  "firs": [
+    {
+      "user_id": "7273415925",
+      "username": "User",
+      "language": "en",
+      "plan": "individual",
+      "incident_type": "fraud",
+      "incident_date": "26/02/2026",
+      "incident_location": "Lucknow hazratganj",
+      "description": "6 people came and snatch my Rs 1200000",
+      "complainant_name": "Ashish pandey",
+      "complainant_phone": "7992103007",
+      "complainant_address": "347/312 old tikait ganj",
+      "accused_details": "Virendra Kumar and others",
+      "witness_details": "Skip",
+      "evidence_details": "Yes cctv call details",
+      "police_station": "city",
+      "status": "submitted",
+      "payment_status": false,
+      "id": "f241310b",
+      "fir_number": "FIR20260627F241",
+      "created_at": "2026-06-27T22:51:40.693046"
+    },
+    {
+      "user_id": "7273415925",
+      "username": "User",
+      "language": "en",
+      "plan": "individual",
+      "incident_type": "cyber",
+      "incident_date": "26/09/2025",
+      "incident_location": "Lucknow nigoha",
+      "description": "I was going and cyber crime was committed during my ride and 2 lacs siphoning",
+      "complainant_name": "Ashish pandey",
+      "complainant_phone": "7992103007",
+      "complainant_address": "347/312 old tikait ganj",
+      "accused_details": "Virendra",
+      "witness_details": "Skip",
+      "evidence_details": "Yes all pen drive",
+      "police_station": "city",
+      "status": "paid",
+      "payment_status": true,
+      "amount": 10,
+      "id": "ad3668ef",
+      "fir_number": "FIR20260627AD36",
+      "created_at": "2026-06-27T23:10:38.201726",
+      "application_text": "\n        To,\n        The SHO,\n        city\n        \n        Subject: Application for filing First Information Report (FIR)\n        \n        Sir/Madam,\n        \n        I, Ashish pandey,\n        resident of 347/312 old tikait ganj,\n        Mobile: 7992103007,\n        \n        hereby state that on 26/09/2025 at \n        Lucknow nigoha, the following incident occurred:\n        \n        I was going and cyber crime was committed during my ride and 2 lacs siphoning\n        \n        Incident Type: cyber\n        \n        Accused Persons: Virendra\n        \n        Witnesses: Skip\n        \n        Evidence: Yes all pen drive\n        \n        Therefore, I request you to register an FIR and take necessary legal action.\n        \n        Date: 27/06/2026\n        \n        Yours sincerely,\n        \n        (Ashish pandey)\n        Signature\n        \n        ------------------------------------------------------------\n        \n        AFFIDAVIT\n        \n        I, Ashish pandey, \n        do hereby solemnly affirm and declare that the above information \n        is true and correct to the best of my knowledge.\n        \n        Date: 27/06/2026\n        \n        (Ashish pandey)\n        ",
+      "payment_method": "upi",
+      "amount_paid": 10
+    }
+  ],
+  "users": {},
+  "feedback": [
+    {
+      "user_id": "7273415925",
+      "feedback": "Very good",
+      "created_at": "2026-06-27T22:52:02.086702"
+    }
+  ]
+}
